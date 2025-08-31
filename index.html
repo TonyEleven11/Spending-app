@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weekly Spending Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 300px;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #007BFF;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #total {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    #breakdown {
+      margin-top: 10px;
+      font-size: 16px;
+      text-align: left;
+      width: 300px;
+    }
+    #resetBtn {
+      margin-top: 15px;
+      background: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <h1>Weekly Spending Tracker</h1>
+  <div class="categories" id="categories"></div>
+
+  <div id="total">Total Spent: $0</div>
+  <div id="breakdown"></div>
+  <button id="resetBtn">Reset for New Week</button>
+
+  <script>
+    const CATEGORY_LIST = [
+      "Groceries",
+      "Entertainment",
+      "Bills",
+      "Stock",
+      "Alcohol",
+      "Gifting",
+      "Transport",
+      "Food",
+      "Clothing",
+      "Misc"
+    ];
+
+    let totals = JSON.parse(localStorage.getItem("totals")) || {};
+
+    // migrate old keys if needed
+    if (totals["Dining Out"]) {
+      totals["Food"] = (totals["Food"] || 0) + totals["Dining Out"];
+      delete totals["Dining Out"];
+    }
+    if (totals["Health"]) {
+      totals["Clothing"] = (totals["Clothing"] || 0) + totals["Health"];
+      delete totals["Health"];
+    }
+
+    const categoriesEl = document.getElementById("categories");
+    const totalEl = document.getElementById("total");
+    const breakdownEl = document.getElementById("breakdown");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function render() {
+      categoriesEl.innerHTML = "";
+      let grandTotal = 0;
+
+      CATEGORY_LIST.forEach(cat => {
+        // Button
+        const btn = document.createElement("button");
+        btn.textContent = cat;
+        btn.onclick = () => addExpense(cat);
+        categoriesEl.appendChild(btn);
+
+        // Display amount per category
+        const catTotal = document.createElement("div");
+        catTotal.textContent = `${cat}: $${(totals[cat] || 0).toFixed(2)}`;
+        categoriesEl.appendChild(catTotal);
+
+        grandTotal += totals[cat] || 0;
+      });
+
+      totalEl.textContent = `Total Spent: $${grandTotal.toFixed(2)}`;
+      breakdownEl.innerHTML = "<h3>Category Breakdown</h3><ul>" + 
+        CATEGORY_LIST.map(cat => `<li>${cat}: $${(totals[cat] || 0).toFixed(2)}</li>`).join('') + 
+        "</ul>";
+
+      localStorage.setItem("totals", JSON.stringify(totals));
+    }
+
+    function addExpense(category) {
+      const amount = parseFloat(prompt(`Enter amount for ${category}:`));
+      if (!isNaN(amount) && amount > 0) {
+        totals[category] = (totals[category] || 0) + amount;
+        render();
+      }
+    }
+
+    resetBtn.onclick = () => {
+      if (confirm("Start a new week? This will clear all data.")) {
+        totals = {};
+        render();
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
