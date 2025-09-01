@@ -69,7 +69,7 @@
       "Gifting",
       "Fuel",
       "Food",
-      "Clothing",
+      "Bad Food",
       "Coffee"
     ];
 
@@ -81,7 +81,7 @@
       delete totals["Dining Out"];
     }
     if (totals["Health"]) {
-      totals["Clothing"] = (totals["Clothing"] || 0) + totals["Health"];
+      totals["Bad Food"] = (totals["Bad Food"] || 0) + totals["Health"];
       delete totals["Health"];
     }
 
