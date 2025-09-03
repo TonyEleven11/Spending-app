@@ -8,54 +8,69 @@
       font-family: Arial, sans-serif;
       background: #f9f9f9;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 30px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+      width: 95%;
+      max-width: 500px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 26px;
+    }
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 25px;
+    }
+    .category {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .categories {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 3 columns */
-      gap: 12px;
-      width: 90%;
-      max-width: 400px;
-    }
-    button {
-      padding: 15px;
+    .category button {
+      padding: 14px;
       border: none;
       border-radius: 10px;
       background: #007BFF;
       color: white;
-      font-size: 18px; /* bigger text */
+      font-size: 18px;
+      font-weight: bold;
       cursor: pointer;
-      transition: background 0.2s;
       width: 100%;
+      transition: background 0.2s;
     }
-    button:hover {
+    .category button:hover {
       background: #0056b3;
     }
-    .cat-total {
-      text-align: center;
-      font-size: 16px; /* bigger numbers */
-      margin-top: 5px;
+    .category div {
+      margin-top: 6px;
+      font-size: 16px;
     }
     #total {
-      margin-top: 25px;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
+      margin: 20px 0;
     }
     #resetBtn {
-      margin-top: 15px;
-      padding: 12px 20px;
+      padding: 14px;
+      font-size: 18px;
+      border: none;
       border-radius: 10px;
-      font-size: 16px;
       background: #dc3545;
       color: white;
-      border: none;
       cursor: pointer;
+      width: 100%;
     }
     #resetBtn:hover {
       background: #a71d2a;
@@ -63,35 +78,19 @@
   </style>
 </head>
 <body>
-  <h1>Weekly Spending Tracker</h1>
-  <div class="categories" id="categories"></div>
-
-  <div id="total">Total Spent: $0</div>
-  <button id="resetBtn">Reset for New Week</button>
+  <div class="container">
+    <h1>Weekly Spending Tracker</h1>
+    <div class="categories" id="categories"></div>
+    <div id="total">Total Spent: $0</div>
+    <button id="resetBtn">Reset for New Week</button>
+  </div>
 
   <script>
     const CATEGORY_LIST = [
-      "Groceries",
-      "Entertainment",
-      "Bills",
-      "Stock",
-      "Alcohol",
-      "Gifting",
-      "Fuel",
-      "Food",
-      "Bad Food",
-      "Coffee",
-      "Tools",
-      "Transport",
-      "Adwords",
-      "Clothing",
-      "Misc1",
-      "Misc2",
-      "Misc3",
-      "Misc4",
-      "Misc5",
-      "Misc6",
-      "Misc7" // new category
+      "Groceries", "Entertainment", "Bills", "Stock", "Alcohol",
+      "Gifting", "Fuel", "Food", "Bad Food", "Coffee",
+      "Tools", "Transport", "Adwords", "Clothing", "Misc1",
+      "Misc2", "Misc3", "Misc4", "Misc5", "Misc6", "Misc7"
     ];
 
     let totals = JSON.parse(localStorage.getItem("totals")) || {};
@@ -105,24 +104,19 @@
       let grandTotal = 0;
 
       CATEGORY_LIST.forEach(cat => {
-        // Button
-        const container = document.createElement("div");
-        container.style.display = "flex";
-        container.style.flexDirection = "column";
-        container.style.alignItems = "center";
+        const wrapper = document.createElement("div");
+        wrapper.className = "category";
 
         const btn = document.createElement("button");
         btn.textContent = cat;
         btn.onclick = () => addExpense(cat);
 
         const catTotal = document.createElement("div");
-        catTotal.className = "cat-total";
         catTotal.textContent = `$${(totals[cat] || 0).toFixed(2)}`;
 
-        container.appendChild(btn);
-        container.appendChild(catTotal);
-
-        categoriesEl.appendChild(container);
+        wrapper.appendChild(btn);
+        wrapper.appendChild(catTotal);
+        categoriesEl.appendChild(wrapper);
 
         grandTotal += totals[cat] || 0;
       });
@@ -144,7 +138,7 @@
         totals = {};
         render();
       }
-    }
+    };
 
     render();
   </script>
