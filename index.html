@@ -1,96 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Weekly Spending Tracker</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    :root{
+      --max-width: 560px;               /* overall width cap */
+      --gap: 16px;                      /* space between items */
+      --btn-radius: 12px;
+      --blue: #0a7cff;
+      --blue-hover:#0566d1;
+      --danger:#dc3545;
     }
-    .container {
-      background: white;
-      border-radius: 12px;
-      padding: 30px 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      text-align: center;
-      width: 95%;
-      max-width: 500px;
+
+    body{
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      margin:0;
+      background:#f7f7f7;
+      -webkit-font-smoothing:antialiased;
+      padding: 14px 14px calc(120px + env(safe-area-inset-bottom)); /* space for sticky footer */
+      display:flex;
+      justify-content:center;
     }
-    h1 {
-      margin-bottom: 20px;
-      font-size: 26px;
+
+    .wrap{
+      width: min(96vw, var(--max-width));
     }
-    .categories {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-      margin-bottom: 25px;
+
+    h1{
+      margin: 6px 0 18px;
+      text-align:center;
+      font-weight: 800;
+      font-size: clamp(28px, 6.2vw, 36px); /* bigger title */
     }
-    .category {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+
+    .categories{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(100px, 1fr)); /* 3 columns */
+      gap: var(--gap);
     }
-    .category button {
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      background: #007BFF;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.2s;
+
+    .cat{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
     }
-    .category button:hover {
-      background: #0056b3;
+
+    .cat button{
+      width:100%;
+      border:none;
+      border-radius: var(--btn-radius);
+      background: var(--blue);
+      color:#fff;
+      cursor:pointer;
+      padding: clamp(14px, 3.8vw, 18px);
+      font-weight: 800;
+      font-size: clamp(18px, 4.8vw, 24px);  /* bigger button text */
+      box-shadow: 0 3px 8px rgba(0,0,0,.12);
+      transition: background .15s ease, transform .05s ease;
     }
-    .category div {
+    .cat button:active{ transform: scale(.98); }
+    .cat button:hover{ background: var(--blue-hover); }
+
+    .amount{
       margin-top: 6px;
-      font-size: 16px;
+      font-size: clamp(16px, 4.4vw, 22px);  /* bigger amounts */
+      color:#222;
+      font-weight:600;
     }
-    #total {
-      font-size: 22px;
-      font-weight: bold;
-      margin: 20px 0;
+
+    /* Sticky footer */
+    .footer{
+      position: fixed;
+      left:0; right:0; bottom:0;
+      background:#fff;
+      box-shadow: 0 -4px 14px rgba(0,0,0,.12);
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
     }
-    #resetBtn {
+    #total{
+      font-size: clamp(20px, 5.5vw, 28px);
+      font-weight: 800;
+    }
+    #resetBtn{
+      width: min(92vw, var(--max-width));
+      border:none;
+      border-radius: 14px;
+      background: var(--danger);
+      color:#fff;
       padding: 14px;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      background: #dc3545;
-      color: white;
-      cursor: pointer;
-      width: 100%;
-    }
-    #resetBtn:hover {
-      background: #a71d2a;
+      font-size: clamp(16px, 4.6vw, 20px);
+      font-weight:700;
+      cursor:pointer;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="wrap">
     <h1>Weekly Spending Tracker</h1>
-    <div class="categories" id="categories"></div>
+    <div id="categories" class="categories"></div>
+  </div>
+
+  <div class="footer">
     <div id="total">Total Spent: $0</div>
     <button id="resetBtn">Reset for New Week</button>
   </div>
 
   <script>
     const CATEGORY_LIST = [
-      "Groceries", "Entertainment", "Bills", "Stock", "Alcohol",
-      "Gifting", "Fuel", "Food", "Bad Food", "Coffee",
-      "Tools", "Transport", "Adwords", "Clothing", "Misc1",
-      "Misc2", "Misc3", "Misc4", "Misc5", "Misc6", "Misc7"
+      "Groceries","Entertainment","Bills","Stock","Alcohol",
+      "Gifting","Fuel","Food","Bad Food","Coffee",
+      "Tools","Transport","Adwords","Clothing","Misc1",
+      "Misc2","Misc3","Misc4","Misc5","Misc6","Misc7"
     ];
 
     let totals = JSON.parse(localStorage.getItem("totals")) || {};
@@ -99,42 +124,43 @@
     const totalEl = document.getElementById("total");
     const resetBtn = document.getElementById("resetBtn");
 
-    function render() {
+    function render(){
       categoriesEl.innerHTML = "";
-      let grandTotal = 0;
+      let grand = 0;
 
-      CATEGORY_LIST.forEach(cat => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "category";
+      CATEGORY_LIST.forEach(cat=>{
+        const cell = document.createElement("div");
+        cell.className = "cat";
 
         const btn = document.createElement("button");
         btn.textContent = cat;
-        btn.onclick = () => addExpense(cat);
+        btn.onclick = ()=> addExpense(cat);
 
-        const catTotal = document.createElement("div");
-        catTotal.textContent = `$${(totals[cat] || 0).toFixed(2)}`;
+        const amt = document.createElement("div");
+        amt.className = "amount";
+        amt.textContent = `$${(totals[cat]||0).toFixed(2)}`;
 
-        wrapper.appendChild(btn);
-        wrapper.appendChild(catTotal);
-        categoriesEl.appendChild(wrapper);
+        cell.appendChild(btn);
+        cell.appendChild(amt);
+        categoriesEl.appendChild(cell);
 
-        grandTotal += totals[cat] || 0;
+        grand += totals[cat]||0;
       });
 
-      totalEl.textContent = `Total Spent: $${grandTotal.toFixed(2)}`;
+      totalEl.textContent = `Total Spent: $${grand.toFixed(2)}`;
       localStorage.setItem("totals", JSON.stringify(totals));
     }
 
-    function addExpense(category) {
+    function addExpense(category){
       const amount = parseFloat(prompt(`Enter amount for ${category}:`));
-      if (!isNaN(amount) && amount > 0) {
+      if (!isNaN(amount) && amount > 0){
         totals[category] = (totals[category] || 0) + amount;
         render();
       }
     }
 
-    resetBtn.onclick = () => {
-      if (confirm("Start a new week? This will clear all data.")) {
+    resetBtn.onclick = ()=>{
+      if (confirm("Start a new week? This will clear all data.")){
         totals = {};
         render();
       }
