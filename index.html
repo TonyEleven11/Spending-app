@@ -5,49 +5,73 @@
   <title>Weekly Spending Tracker</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       background: #f9f9f9;
       margin: 0;
       padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
     h1 {
       margin-bottom: 20px;
+      font-size: 24px;
+      text-align: center;
     }
     .categories {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      width: 300px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      width: 100%;
     }
-    button {
-      padding: 10px;
+    .category-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .category-item button {
+      padding: 12px;
       border: none;
       border-radius: 8px;
       background: #007BFF;
       color: white;
       font-size: 16px;
       cursor: pointer;
+      width: 100%;
+      margin-bottom: 6px;
       transition: background 0.2s;
     }
-    button:hover {
+    .category-item button:hover {
       background: #0056b3;
+    }
+    .category-total {
+      font-size: 15px;
+      color: #333;
     }
     #total {
       margin-top: 20px;
-      font-size: 18px;
-    }
-    #breakdown {
-      margin-top: 10px;
-      font-size: 16px;
-      text-align: left;
-      width: 300px;
+      font-size: 20px;
+      font-weight: bold;
     }
     #resetBtn {
       margin-top: 15px;
+      padding: 12px 20px;
+      font-size: 16px;
       background: #dc3545;
+      border-radius: 8px;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+    #resetBtn:hover {
+      background: #b52a37;
     }
   </style>
 </head>
@@ -56,7 +80,6 @@
   <div class="categories" id="categories"></div>
 
   <div id="total">Total Spent: $0</div>
-  <div id="breakdown"></div>
   <button id="resetBtn">Reset for New Week</button>
 
   <script>
@@ -70,24 +93,23 @@
       "Fuel",
       "Food",
       "Bad Food",
-      "Coffee"
+      "Coffee",
+      "Tools",
+      "Transport",
+      "Adwords",
+      "Clothing",
+      "Misc1",
+      "Misc2",
+      "Misc3",
+      "Misc4",
+      "Misc5",
+      "Misc6"
     ];
 
     let totals = JSON.parse(localStorage.getItem("totals")) || {};
 
-    // migrate old keys if needed
-    if (totals["Dining Out"]) {
-      totals["Food"] = (totals["Food"] || 0) + totals["Dining Out"];
-      delete totals["Dining Out"];
-    }
-    if (totals["Health"]) {
-      totals["Bad Food"] = (totals["Bad Food"] || 0) + totals["Health"];
-      delete totals["Health"];
-    }
-
     const categoriesEl = document.getElementById("categories");
     const totalEl = document.getElementById("total");
-    const breakdownEl = document.getElementById("breakdown");
     const resetBtn = document.getElementById("resetBtn");
 
     function render() {
@@ -95,25 +117,24 @@
       let grandTotal = 0;
 
       CATEGORY_LIST.forEach(cat => {
-        // Button
+        const container = document.createElement("div");
+        container.className = "category-item";
+
         const btn = document.createElement("button");
         btn.textContent = cat;
         btn.onclick = () => addExpense(cat);
-        categoriesEl.appendChild(btn);
+        container.appendChild(btn);
 
-        // Display amount per category
         const catTotal = document.createElement("div");
-        catTotal.textContent = `${cat}: $${(totals[cat] || 0).toFixed(2)}`;
-        categoriesEl.appendChild(catTotal);
+        catTotal.className = "category-total";
+        catTotal.textContent = `$${(totals[cat] || 0).toFixed(2)}`;
+        container.appendChild(catTotal);
 
+        categoriesEl.appendChild(container);
         grandTotal += totals[cat] || 0;
       });
 
       totalEl.textContent = `Total Spent: $${grandTotal.toFixed(2)}`;
-      breakdownEl.innerHTML = "<h3>Category Breakdown</h3><ul>" + 
-        CATEGORY_LIST.map(cat => `<li>${cat}: $${(totals[cat] || 0).toFixed(2)}</li>`).join('') + 
-        "</ul>";
-
       localStorage.setItem("totals", JSON.stringify(totals));
     }
 
