@@ -5,73 +5,60 @@
   <title>Weekly Spending Tracker</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-family: Arial, sans-serif;
       background: #f9f9f9;
       margin: 0;
       padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
     }
     h1 {
       margin-bottom: 20px;
-      font-size: 24px;
-      text-align: center;
     }
     .categories {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(3, 1fr); /* 3 columns */
       gap: 12px;
-      width: 100%;
+      width: 90%;
+      max-width: 400px;
     }
-    .category-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: white;
-      padding: 12px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .category-item button {
-      padding: 12px;
+    button {
+      padding: 15px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       background: #007BFF;
       color: white;
-      font-size: 16px;
+      font-size: 18px; /* bigger text */
       cursor: pointer;
-      width: 100%;
-      margin-bottom: 6px;
       transition: background 0.2s;
+      width: 100%;
     }
-    .category-item button:hover {
+    button:hover {
       background: #0056b3;
     }
-    .category-total {
-      font-size: 15px;
-      color: #333;
+    .cat-total {
+      text-align: center;
+      font-size: 16px; /* bigger numbers */
+      margin-top: 5px;
     }
     #total {
-      margin-top: 20px;
+      margin-top: 25px;
       font-size: 20px;
       font-weight: bold;
     }
     #resetBtn {
       margin-top: 15px;
       padding: 12px 20px;
+      border-radius: 10px;
       font-size: 16px;
       background: #dc3545;
-      border-radius: 8px;
-      border: none;
       color: white;
+      border: none;
       cursor: pointer;
     }
     #resetBtn:hover {
-      background: #b52a37;
+      background: #a71d2a;
     }
   </style>
 </head>
@@ -103,7 +90,8 @@
       "Misc3",
       "Misc4",
       "Misc5",
-      "Misc6"
+      "Misc6",
+      "Misc7" // new category
     ];
 
     let totals = JSON.parse(localStorage.getItem("totals")) || {};
@@ -117,20 +105,25 @@
       let grandTotal = 0;
 
       CATEGORY_LIST.forEach(cat => {
+        // Button
         const container = document.createElement("div");
-        container.className = "category-item";
+        container.style.display = "flex";
+        container.style.flexDirection = "column";
+        container.style.alignItems = "center";
 
         const btn = document.createElement("button");
         btn.textContent = cat;
         btn.onclick = () => addExpense(cat);
-        container.appendChild(btn);
 
         const catTotal = document.createElement("div");
-        catTotal.className = "category-total";
+        catTotal.className = "cat-total";
         catTotal.textContent = `$${(totals[cat] || 0).toFixed(2)}`;
+
+        container.appendChild(btn);
         container.appendChild(catTotal);
 
         categoriesEl.appendChild(container);
+
         grandTotal += totals[cat] || 0;
       });
 
